@@ -12,6 +12,9 @@ const VerificationSchema = new Schema({
   phone: String, // String is shorthand for {type: String}
   verificationNumber: String,
 });
+const UserSchema = new Schema({
+  phone: String, // String is shorthand for {type: String}
+});
 
 const app = express();
 
@@ -52,11 +55,14 @@ app.post("/confirmNumber", async function (req, res) {
   if (req.body.number && req.body.verificationNumber) {
     const verificationModel = mongoose.model("UserVerification", VerificationSchema);
     const isNumberAvaliable = await verificationModel.findOne({
-      phone: req.body.number,
+        phone: req.body.number,
     });
     if (isNumberAvaliable) {
-      if (isNumberAvaliable.verificationNumber == req.body.verificationNumber) {
-        res.json({ status: true, message: "OK" });
+        if (isNumberAvaliable.verificationNumber == req.body.verificationNumber) {
+            
+            const UserModel = mongoose.model("User", UserSchema);
+        await new UserModel({phone:isNumberAvaliable.phone}).save();
+            res.json({ status: true, message: "OK" });
       }
     }
     res.json({ status: false, message: "Wrong Verification Number" });
